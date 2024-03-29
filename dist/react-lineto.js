@@ -156,7 +156,7 @@ var defaultAnchor = {
   x: 0.5,
   y: 0.5
 };
-var defaultBorderColor = '#f00';
+var defaultBorderColor = '#000';
 var defaultBorderStyle = 'solid';
 var defaultBorderWidth = 1;
 var optionalStyleProps = {
@@ -346,10 +346,12 @@ var LineTo = /*#__PURE__*/function (_Component) {
       var _this$props = this.props,
           from = _this$props.from,
           to = _this$props.to,
+          through = _this$props.through,
           _this$props$within = _this$props.within,
           within = _this$props$within === void 0 ? '' : _this$props$within;
       var a = this.findElement(from);
       var b = this.findElement(to);
+      var c = this.findElement(through);
 
       if (!a || !b) {
         return false;
@@ -359,6 +361,7 @@ var LineTo = /*#__PURE__*/function (_Component) {
       var anchor1 = this.toAnchor;
       var box0 = a.getBoundingClientRect();
       var box1 = b.getBoundingClientRect();
+      var box2 = c ? c.getBoundingClientRect() : null;
       var offsetX = window.pageXOffset;
       var offsetY = window.pageYOffset;
 
@@ -371,13 +374,17 @@ var LineTo = /*#__PURE__*/function (_Component) {
 
       var x0 = box0.left + box0.width * anchor0.x + offsetX;
       var x1 = box1.left + box1.width * anchor1.x + offsetX;
+      var x2 = box2 ? box2.left + box2.width * anchor1.x + offsetX : null;
       var y0 = box0.top + box0.height * anchor0.y + offsetY;
       var y1 = box1.top + box1.height * anchor1.y + offsetY;
+      var y2 = box2 ? box2.top + box2.height * anchor1.y + offsetY : null;
       return {
         x0: x0,
         y0: y0,
         x1: x1,
-        y1: y1
+        y1: y1,
+        x2: x2,
+        y2: y2
       };
     }
   }, {
@@ -477,9 +484,14 @@ var Line = /*#__PURE__*/function (_PureComponent) {
         transformOrigin: '0 0'
       };
       var defaultStyle = {
+        backgroundColor: this.props.color || 'black',
+        height: "".concat(this.props.height, "px") || 0,
         borderTopColor: this.props.borderColor || defaultBorderColor,
+        borderBottomColor: this.props.borderColor || defaultBorderColor,
         borderTopStyle: this.props.borderStyle || defaultBorderStyle,
-        borderTopWidth: this.props.borderWidth || defaultBorderWidth
+        borderBottomStyle: this.props.borderStyle || defaultBorderStyle,
+        borderTopWidth: this.props.borderWidth || defaultBorderWidth,
+        borderBottomWidth: this.props.borderWidth || defaultBorderWidth
       };
       var props = {
         className: this.props.className,
@@ -533,43 +545,37 @@ var SteppedLine = /*#__PURE__*/function (_PureComponent2) {
       var y0 = Math.round(this.props.y0);
       var x1 = Math.round(this.props.x1);
       var y1 = Math.round(this.props.y1);
-      var dx = x1 - x0;
-
-      if (Math.abs(dx) <= 1) {
-        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, _extends({}, this.props, {
-          x0: x0,
-          y0: y0,
-          x1: x0,
-          y1: y1
-        }));
-      }
-
-      if (dx === 0) {
-        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, this.props);
-      }
-
-      var borderWidth = this.props.borderWidth || defaultBorderWidth;
-      var y2 = Math.round((y0 + y1) / 2);
-      var xOffset = dx > 0 ? borderWidth : 0;
-      var minX = Math.min(x0, x1) - xOffset;
-      var maxX = Math.max(x0, x1);
+      var x2 = Math.round(this.props.x2);
+      var dy = y1 - y0;
+      var y0step = dy > 0 ? Math.round(y0 + this.props.step) : Math.round(y0 - this.props.step);
+      var y1step = dy < 0 ? Math.round(y1 - this.props.step * 1.5) : Math.round(y1 + this.props.step * 1.5);
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement("div", {
         className: "react-steppedlineto"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, _extends({}, this.props, {
         x0: x0,
         y0: y0,
         x1: x0,
-        y1: y2
+        y1: y0step
+      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, _extends({}, this.props, {
+        x0: x0,
+        y0: y0step,
+        x1: x2,
+        y1: y0step
+      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, _extends({}, this.props, {
+        x0: x2,
+        y0: y0step,
+        x1: x2,
+        y1: y1step
+      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, _extends({}, this.props, {
+        x0: x2,
+        y0: y1step,
+        x1: x1,
+        y1: y1step
       })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, _extends({}, this.props, {
         x0: x1,
-        y0: y1,
+        y0: y1step,
         x1: x1,
-        y1: y2
-      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, _extends({}, this.props, {
-        x0: minX,
-        y0: y2,
-        x1: maxX,
-        y1: y2
+        y1: y1
       })));
     }
   }, {
@@ -588,10 +594,6 @@ var SteppedLine = /*#__PURE__*/function (_PureComponent2) {
           x1: x1,
           y1: y0
         }));
-      }
-
-      if (dy === 0) {
-        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, this.props);
       }
 
       var borderWidth = this.props.borderWidth || defaultBorderWidth;

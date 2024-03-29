@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component, PureComponent } from 'react';
 
 const defaultAnchor = { x: 0.5, y: 0.5 };
-const defaultBorderColor = '#f00';
+const defaultBorderColor = '#000';
 const defaultBorderStyle = 'solid';
 const defaultBorderWidth = 1;
 
@@ -128,10 +128,11 @@ export default class LineTo extends Component {
     }
 
     detect() {
-        const { from, to, within = '' } = this.props;
+        const { from, to, through, within = '' } = this.props;
 
         const a = this.findElement(from);
         const b = this.findElement(to);
+        const c = this.findElement(through);
 
         if (!a || !b) {
             return false;
@@ -142,6 +143,7 @@ export default class LineTo extends Component {
 
         const box0 = a.getBoundingClientRect();
         const box1 = b.getBoundingClientRect();
+        const box2 = c ? c.getBoundingClientRect() : null;
 
         let offsetX = window.pageXOffset;
         let offsetY = window.pageYOffset;
@@ -156,10 +158,12 @@ export default class LineTo extends Component {
 
         const x0 = box0.left + box0.width * anchor0.x + offsetX;
         const x1 = box1.left + box1.width * anchor1.x + offsetX;
+        const x2 = box2 ? box2.left + box2.width * anchor1.x + offsetX : null;
         const y0 = box0.top + box0.height * anchor0.y + offsetY;
         const y1 = box1.top + box1.height * anchor1.y + offsetY;
+        const y2 = box2 ? box2.top + box2.height * anchor1.y + offsetY : null;
 
-        return { x0, y0, x1, y1 };
+        return { x0, y0, x1, y1, x2, y2 };
     }
 
     render() {
@@ -229,9 +233,14 @@ export class Line extends PureComponent {
         };
 
         const defaultStyle = {
+            backgroundColor: this.props.color || 'black',
+            height: `${this.props.height}px` || 'initial',
             borderTopColor: this.props.borderColor || defaultBorderColor,
+            borderBottomColor: this.props.borderColor || defaultBorderColor,
             borderTopStyle: this.props.borderStyle || defaultBorderStyle,
+            borderBottomStyle: this.props.borderStyle || defaultBorderStyle,
             borderTopWidth: this.props.borderWidth || defaultBorderWidth,
+            borderBottomWidth: this.props.borderWidth || defaultBorderWidth,
         };
 
         const props = {
@@ -274,24 +283,20 @@ export class SteppedLine extends PureComponent {
         const y0 = Math.round(this.props.y0);
         const x1 = Math.round(this.props.x1);
         const y1 = Math.round(this.props.y1);
+        const x2 = Math.round(this.props.x2);
 
-        const dx = x1 - x0;
-        if (Math.abs(dx) <= 1) {
-            return <Line {...this.props} {...{ x0, y0, x1: x0, y1 }} />;
-        }
+        const dy = y1 - y0;
 
-        const borderWidth = this.props.borderWidth || defaultBorderWidth;
-        const y2 = Math.round((y0 + y1) / 2);
-
-        const xOffset = dx > 0 ? borderWidth : 0;
-        const minX = Math.min(x0, x1) - xOffset;
-        const maxX = Math.max(x0, x1);
+        const y0step = dy > 0 ? Math.round(y0 + this.props.step) : Math.round(y0 - this.props.step);
+        const y1step = dy < 0 ? Math.round(y1 - this.props.step * 1.5) : Math.round(y1 + this.props.step * 1.5);
 
         return (
             <div className="react-steppedlineto">
-                <Line {...this.props} x0={x0} y0={y0} x1={x0} y1={y2} />
-                <Line {...this.props} x0={x1} y0={y1} x1={x1} y1={y2} />
-                <Line {...this.props} x0={minX} y0={y2} x1={maxX} y1={y2} />
+                <Line {...this.props} x0={x0} y0={y0} x1={x0} y1={y0step} />
+                <Line {...this.props} x0={x0} y0={y0step} x1={x2} y1={y0step} />
+                <Line {...this.props} x0={x2} y0={y0step} x1={x2} y1={y1step} />
+                <Line {...this.props} x0={x2} y0={y1step} x1={x1} y1={y1step} />
+                <Line {...this.props} x0={x1} y0={y1step} x1={x1} y1={y1} />
             </div>
         );
     }
