@@ -108,8 +108,10 @@ declare module "react-lineto" {
 
     through: string;
 
-    step: number;
+    toStep: number;
 
+    fromStep: number;
+    
     color: string;
 
     height: number;

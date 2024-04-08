@@ -547,8 +547,8 @@ var SteppedLine = /*#__PURE__*/function (_PureComponent2) {
       var y1 = Math.round(this.props.y1);
       var x2 = Math.round(this.props.x2);
       var dy = y1 - y0;
-      var y0step = dy > 0 ? Math.round(y0 + this.props.step) : Math.round(y0 - this.props.step);
-      var y1step = dy < 0 ? Math.round(y1 - this.props.step * 1.5) : Math.round(y1 + this.props.step * 1.5);
+      var y0step = dy > 0 ? Math.round(y0 + this.props.toStep) : Math.round(y0 - this.props.toStep);
+      var y1step = dy < 0 ? Math.round(y1 - this.props.fromStep) : Math.round(y1 + this.props.fromStep);
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement("div", {
         className: "react-steppedlineto"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default().createElement(Line, _extends({}, this.props, {

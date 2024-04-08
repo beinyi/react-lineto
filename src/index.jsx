@@ -287,8 +287,8 @@ export class SteppedLine extends PureComponent {
 
         const dy = y1 - y0;
 
-        const y0step = dy > 0 ? Math.round(y0 + this.props.step) : Math.round(y0 - this.props.step);
-        const y1step = dy < 0 ? Math.round(y1 - this.props.step * 1.5) : Math.round(y1 + this.props.step * 1.5);
+        const y0step = dy > 0 ? Math.round(y0 + this.props.toStep) : Math.round(y0 - this.props.toStep);
+        const y1step = dy < 0 ? Math.round(y1 - this.props.fromStep) : Math.round(y1 + this.props.fromStep);
 
         return (
             <div className="react-steppedlineto">
